@@ -15,14 +15,31 @@ import com.example.domain.repository.TodoRepository
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 class TodoRepositoryImpl(
     private val todoDao: TodoDao,
     private val firestoreApi: FirestoreApi
 ) : TodoRepository {
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val current = todoDao.getAllCategoriesFlow().first()
+                if (current.isEmpty()) {
+                    val defaults = Category.DEFAULT_CATEGORIES
+                    todoDao.insertCategories(defaults.map { CategoryEntity.fromDomain(it) })
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     private val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
@@ -40,14 +57,7 @@ class TodoRepositoryImpl(
     }
 
     override val allCategories: Flow<List<Category>> = todoDao.getAllCategoriesFlow().map { entities ->
-        if (entities.isEmpty()) {
-            // Seed defaults if empty
-            val defaults = Category.DEFAULT_CATEGORIES
-            todoDao.insertCategories(defaults.map { CategoryEntity.fromDomain(it) })
-            defaults
-        } else {
-            entities.map { it.toDomain() }
-        }
+        entities.map { it.toDomain() }
     }
 
     override suspend fun insertTodo(todoItem: TodoItem) {
