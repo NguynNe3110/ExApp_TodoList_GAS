@@ -84,12 +84,12 @@ fun AuthSyncScreen(
                         onClick = { onNavigateBack(state.loggedInUser) },
                         modifier = Modifier.testTag("auth_back_button")
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Trở lại", tint = Color(0xFF1D1B20))
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Trở lại", tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFFEF7FF),
-                    titleContentColor = Color(0xFF1D1B20)
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
@@ -99,14 +99,14 @@ fun AuthSyncScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFFFEF7FF))
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // General Information Card styled precisely
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEADDFF)),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -117,14 +117,14 @@ fun AuthSyncScreen(
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Info",
-                        tint = Color(0xFF21005D),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Ứng dụng hoạt động offline mặc định. Hãy điền tài khoản để đồng bộ thư mục & việc cần làm trên mọi thiết bị thông qua Firestore đám mây!",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF21005D),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         lineHeight = 20.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -135,7 +135,7 @@ fun AuthSyncScreen(
 
             // Form container Styled elegantly with clean minimalist outlines
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
@@ -150,15 +150,15 @@ fun AuthSyncScreen(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.1.sp
                         ),
-                        color = Color(0xFF49454F)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     // Username Input
                     OutlinedTextField(
                         value = state.username,
                         onValueChange = { viewModel.updateUsername(it) },
-                        label = { Text("Tên tài khoản (username)", color = Color(0xFF49454F)) },
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF49454F)) },
+                        label = { Text("Tên tài khoản (username)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
@@ -166,10 +166,10 @@ fun AuthSyncScreen(
                             .testTag("auth_username_field"),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color(0xFF21005D),
-                            unfocusedBorderColor = Color(0xFFF3EDF7)
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                         )
                     )
 
@@ -177,8 +177,8 @@ fun AuthSyncScreen(
                     OutlinedTextField(
                         value = state.password,
                         onValueChange = { viewModel.updatePassword(it) },
-                        label = { Text("Mật khẩu", color = Color(0xFF49454F)) },
-                        leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null, tint = Color(0xFF49454F)) },
+                        label = { Text("Mật khẩu", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                        leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),
                         visualTransformation = PasswordVisualTransformation(),
@@ -187,10 +187,10 @@ fun AuthSyncScreen(
                             .testTag("auth_password_field"),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color(0xFF21005D),
-                            unfocusedBorderColor = Color(0xFFF3EDF7)
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                         )
                     )
 
@@ -198,7 +198,7 @@ fun AuthSyncScreen(
                     TextButton(
                         onClick = { showAdvanced = !showAdvanced },
                         modifier = Modifier.align(Alignment.Start),
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF21005D))
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
@@ -215,7 +215,7 @@ fun AuthSyncScreen(
                             OutlinedTextField(
                                 value = state.projectId,
                                 onValueChange = { viewModel.updateProjectId(it) },
-                                label = { Text("Google Cloud Project ID", color = Color(0xFF49454F)) },
+                                label = { Text("Google Cloud Project ID", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                                 singleLine = true,
                                 shape = RoundedCornerShape(16.dp),
                                 modifier = Modifier
@@ -223,17 +223,17 @@ fun AuthSyncScreen(
                                     .testTag("auth_project_id_field"),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                 colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color.White,
-                                    unfocusedContainerColor = Color.White,
-                                    focusedBorderColor = Color(0xFF21005D),
-                                    unfocusedBorderColor = Color(0xFFF3EDF7)
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 )
                             )
 
                             OutlinedTextField(
                                 value = state.apiKey,
                                 onValueChange = { viewModel.updateApiKey(it) },
-                                label = { Text("Firebase Web API Key (Khóa API Web)", color = Color(0xFF49454F)) },
+                                label = { Text("Firebase Web API Key (Khóa API Web)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
                                 singleLine = true,
                                 shape = RoundedCornerShape(16.dp),
                                 modifier = Modifier
@@ -241,17 +241,17 @@ fun AuthSyncScreen(
                                     .testTag("auth_api_key_field"),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                 colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = Color.White,
-                                    unfocusedContainerColor = Color.White,
-                                    focusedBorderColor = Color(0xFF21005D),
-                                    unfocusedBorderColor = Color(0xFFF3EDF7)
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                                 )
                             )
 
                             Text(
                                 text = "Lưu ý: Mặc định sử dụng demo database. Nếu sử dụng Project ID riêng, bạn cần điền Khóa API Web (lấy trong Firebase Console -> Cài đặt dự án -> Khóa API web) để vượt qua lỗi xác thực 403.",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFF49454F),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 11.sp,
                                 lineHeight = 16.sp
                             )
@@ -269,46 +269,46 @@ fun AuthSyncScreen(
                         modifier = Modifier
                             .padding(16.dp)
                             .testTag("auth_progress_indicator"),
-                        color = Color(0xFF21005D)
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
                 is AuthScreenState.Success -> {
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9FFF5)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 12.dp)
-                            .border(1.dp, Color(0xFFEADDFF), RoundedCornerShape(16.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(16.dp))
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Check, contentDescription = "Success", tint = Color(0xFF146C2E))
+                                Icon(Icons.Default.Check, contentDescription = "Success", tint = MaterialTheme.colorScheme.primary)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Đồng bộ hoàn tất!", fontWeight = FontWeight.Bold, color = Color(0xFF146C2E))
+                                Text("Đồng bộ hoàn tất!", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                             }
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(screenState.message, fontSize = 13.sp, color = Color(0xFF146C2E))
+                            Text(screenState.message, fontSize = 13.sp, color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
                 is AuthScreenState.Error -> {
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF5F5)),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 12.dp)
-                            .border(1.dp, Color(0xFFFFF1F1), RoundedCornerShape(16.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(16.dp))
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Warning, contentDescription = "Error", tint = Color(0xFFC62828))
+                                Icon(Icons.Default.Warning, contentDescription = "Error", tint = MaterialTheme.colorScheme.error)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Lỗi xảy ra", fontWeight = FontWeight.Bold, color = Color(0xFFC62828))
+                                Text("Lỗi xảy ra", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
                             }
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(screenState.message, fontSize = 13.sp, color = Color(0xFFC62828))
+                            Text(screenState.message, fontSize = 13.sp, color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }
@@ -326,8 +326,8 @@ fun AuthSyncScreen(
                 Button(
                     onClick = { viewModel.restoreCloud() },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFEADDFF),
-                        contentColor = Color(0xFF21005D)
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
@@ -343,8 +343,8 @@ fun AuthSyncScreen(
                 Button(
                     onClick = { viewModel.backupCloud() },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF21005D),
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        contentColor = MaterialTheme.colorScheme.surface
                     ),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
@@ -356,7 +356,7 @@ fun AuthSyncScreen(
                     Text("Đồng Bộ & Lưu Lên Cloud (Backup)", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color(0xFFF3EDF7))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
 
                 // Action: Register (tạo tài khoản mới)
                 OutlinedButton(
@@ -367,7 +367,7 @@ fun AuthSyncScreen(
                         .height(52.dp)
                         .testTag("auth_register_button"),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color(0xFF21005D)
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
                         brush = androidx.compose.ui.graphics.SolidColor(Color(0xFF79747E))

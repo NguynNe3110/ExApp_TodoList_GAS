@@ -13,45 +13,75 @@ import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme =
   darkColorScheme(
-    primary = Color(0xFFD0BCFF),
-    onPrimary = Color(0xFF381E72),
-    primaryContainer = Color(0xFF4F378B),
-    onPrimaryContainer = Color(0xFFEADDFF),
-    secondary = Color(0xFFCCC2DC),
-    background = Color(0xFF1D1B20),
-    surface = Color(0xFF211F24),
-    onBackground = Color(0xFFE6E1E5),
-    onSurface = Color(0xFFE6E1E5),
+    primary = Color(0xFF81C784),
+    onPrimary = Color(0xFF1B5E20),
+    primaryContainer = Color(0xFF4CAF50),
+    onPrimaryContainer = Color(0xFFE8F5E9),
+    secondary = Color(0xFF4DB6AC),
+    onSecondary = Color(0xFF004D40),
+    secondaryContainer = Color(0xFF80CBC4),
+    onSecondaryContainer = Color(0xFF003330),
+    tertiary = Color(0xFFFFD54F),
+    onTertiary = Color(0xFF5D4037),
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E),
+    onBackground = Color(0xFFE0E0E0),
+    onSurface = Color(0xFFE0E0E0),
+    surfaceVariant = Color(0xFF2C2C2C),
+    onSurfaceVariant = Color(0xFFBDBDBD),
+    outline = Color(0xFF757575),
   )
 
 private val LightColorScheme =
   lightColorScheme(
-    primary = Color(0xFF21005D),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFEADDFF),
-    onPrimaryContainer = Color(0xFF21005D),
-    secondary = Color(0xFF625B71),
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFE8DEF8),
-    onSecondaryContainer = Color(0xFF1D192B),
-    background = Color(0xFFFEF7FF),
-    surface = Color(0xFFFEF7FF),
-    onBackground = Color(0xFF1D1B20),
-    onSurface = Color(0xFF1D1B20),
-    surfaceVariant = Color(0xFFF3EDF7),
-    onSurfaceVariant = Color(0xFF49454F),
-    outline = Color(0xFF79747E),
+    // Primary - Soft Green (màu xanh lá nhạt)
+    primary = Color(0xFF81C784),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFC8E6C9),
+    onPrimaryContainer = Color(0xFF1B5E20),
+    
+    // Secondary - Soft Cyan/Teal (màu xanh ngọc nhạt)
+    secondary = Color(0xFF4DB6AC),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFB2DFDB),
+    onSecondaryContainer = Color(0xFF004D40),
+    
+    // Tertiary - Soft Yellow (màu vàng nhạt)
+    tertiary = Color(0xFFFFD54F),
+    onTertiary = Color(0xFF5D4037),
+    tertiaryContainer = Color(0xFFFFECB3),
+    onTertiaryContainer = Color(0xFF3E2723),
+    
+    // Background & Surface - Very light with subtle warm tint
+    background = Color(0xFFFAFAFA),
+    surface = Color(0xFFFEFEFE),
+    onBackground = Color(0xFF212121),
+    onSurface = Color(0xFF212121),
+    
+    // Surface Variant - Subtle cool tint
+    surfaceVariant = Color(0xFFF5F5F5),
+    onSurfaceVariant = Color(0xFF424242),
+    
+    // Error - Soft Red
+    error = Color(0xFFEF9A9A),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFCDD2),
+    onErrorContainer = Color(0xFFB71C1C),
+    
+    outline = Color(0xFFBDBDBD),
+    outlineVariant = Color(0xFFE0E0E0),
   )
 
 @Composable
 fun MyApplicationTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
-  // Custom design overrides dynamic coloring by default
+  // Disable dynamic coloring to always use our custom pastel color scheme
   dynamicColor: Boolean = false,
   content: @Composable () -> Unit,
 ) {
   val colorScheme =
     when {
+      // Always use our custom color scheme, ignoring system dynamic colors
       dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
         val context = LocalContext.current
         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
