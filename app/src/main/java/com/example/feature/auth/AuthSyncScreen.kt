@@ -211,7 +211,7 @@ fun AuthSyncScreen(
 
                     // Advanced Project ID Input
                     AnimatedVisibility(visible = showAdvanced) {
-                        Column {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             OutlinedTextField(
                                 value = state.projectId,
                                 onValueChange = { viewModel.updateProjectId(it) },
@@ -229,9 +229,27 @@ fun AuthSyncScreen(
                                     unfocusedBorderColor = Color(0xFFF3EDF7)
                                 )
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+
+                            OutlinedTextField(
+                                value = state.apiKey,
+                                onValueChange = { viewModel.updateApiKey(it) },
+                                label = { Text("Firebase Web API Key (Khóa API Web)", color = Color(0xFF49454F)) },
+                                singleLine = true,
+                                shape = RoundedCornerShape(16.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("auth_api_key_field"),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                                    focusedContainerColor = Color.White,
+                                    unfocusedContainerColor = Color.White,
+                                    focusedBorderColor = Color(0xFF21005D),
+                                    unfocusedBorderColor = Color(0xFFF3EDF7)
+                                )
+                            )
+
                             Text(
-                                text = "Lưu ý: Mặc định sử dụng demo database. Bạn có thể điền Project ID Firebase của bạn để giữ bảo mật và sở hữu dữ liệu riêng.",
+                                text = "Lưu ý: Mặc định sử dụng demo database. Nếu sử dụng Project ID riêng, bạn cần điền Khóa API Web (lấy trong Firebase Console -> Cài đặt dự án -> Khóa API web) để vượt qua lỗi xác thực 403.",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF49454F),
                                 fontSize = 11.sp,

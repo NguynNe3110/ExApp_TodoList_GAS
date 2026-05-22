@@ -20,7 +20,7 @@ interface TodoRepository {
     suspend fun insertCategory(category: Category)
     suspend fun deleteCategoryById(id: String)
     
-    suspend fun backupToFirestore(projectId: String, username: String, password: String): SyncResult
-    suspend fun restoreFromFirestore(projectId: String, username: String, password: String): SyncResult
-    suspend fun registerAndBackup(projectId: String, username: String, password: String): SyncResult
+    suspend fun backupToFirestore(projectId: String, username: String, password: String, apiKey: String? = null): SyncResult
+    suspend fun restoreFromFirestore(projectId: String, username: String, password: String, apiKey: String? = null): SyncResult
+    suspend fun registerAndBackup(projectId: String, username: String, password: String, apiKey: String? = null): SyncResult
 }

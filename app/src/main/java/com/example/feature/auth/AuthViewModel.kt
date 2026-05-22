@@ -31,6 +31,10 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(projectId = projectId) }
     }
 
+    fun updateApiKey(apiKey: String) {
+        _uiState.update { it.copy(apiKey = apiKey) }
+    }
+
     fun resetState() {
         _uiState.update { it.copy(screenState = AuthScreenState.Idle) }
     }
@@ -45,10 +49,12 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(screenState = AuthScreenState.Loading) }
 
         viewModelScope.launch {
+            val key = state.apiKey.trim().takeIf { it.isNotEmpty() }
             val result = repository.backupToFirestore(
                 projectId = state.projectId.trim(),
                 username = state.username.trim().lowercase(),
-                password = state.password
+                password = state.password,
+                apiKey = key
             )
 
             handleResult(result, "Đã sao lưu (đồng bộ lên) Cloud thành công!")
@@ -65,10 +71,12 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(screenState = AuthScreenState.Loading) }
 
         viewModelScope.launch {
+            val key = state.apiKey.trim().takeIf { it.isNotEmpty() }
             val result = repository.restoreFromFirestore(
                 projectId = state.projectId.trim(),
                 username = state.username.trim().lowercase(),
-                password = state.password
+                password = state.password,
+                apiKey = key
             )
 
             handleResult(result, "Đã khôi phục (tải về) dữ liệu từ Cloud thành công!")
@@ -85,10 +93,12 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(screenState = AuthScreenState.Loading) }
 
         viewModelScope.launch {
+            val key = state.apiKey.trim().takeIf { it.isNotEmpty() }
             val result = repository.registerAndBackup(
                 projectId = state.projectId.trim(),
                 username = state.username.trim().lowercase(),
-                password = state.password
+                password = state.password,
+                apiKey = key
             )
 
             handleResult(result, "Đăng ký thành công và đồng bộ dữ liệu hiện tại lên Cloud!")
