@@ -27,21 +27,13 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(password = password) }
     }
 
-    fun updateProjectId(projectId: String) {
-        _uiState.update { it.copy(projectId = projectId) }
-    }
-
-    fun updateApiKey(apiKey: String) {
-        _uiState.update { it.copy(apiKey = apiKey) }
-    }
-
     fun resetState() {
         _uiState.update { it.copy(screenState = AuthScreenState.Idle) }
     }
 
     fun backupCloud() {
         val state = _uiState.value
-        if (state.username.isBlank() || state.password.isBlank() || state.projectId.isBlank()) {
+        if (state.username.isBlank() || state.password.isBlank()) {
             _uiState.update { it.copy(screenState = AuthScreenState.Error("Vui lòng nhập đầy đủ thông tin!")) }
             return
         }
@@ -49,12 +41,9 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(screenState = AuthScreenState.Loading) }
 
         viewModelScope.launch {
-            val key = state.apiKey.trim().takeIf { it.isNotEmpty() }
             val result = repository.backupToFirestore(
-                projectId = state.projectId.trim(),
                 username = state.username.trim().lowercase(),
-                password = state.password,
-                apiKey = key
+                password = state.password
             )
 
             handleResult(result, "Đã sao lưu (đồng bộ lên) Cloud thành công!")
@@ -63,7 +52,7 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
 
     fun restoreCloud() {
         val state = _uiState.value
-        if (state.username.isBlank() || state.password.isBlank() || state.projectId.isBlank()) {
+        if (state.username.isBlank() || state.password.isBlank()) {
             _uiState.update { it.copy(screenState = AuthScreenState.Error("Vui lòng nhập đầy đủ thông tin!")) }
             return
         }
@@ -71,12 +60,9 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(screenState = AuthScreenState.Loading) }
 
         viewModelScope.launch {
-            val key = state.apiKey.trim().takeIf { it.isNotEmpty() }
             val result = repository.restoreFromFirestore(
-                projectId = state.projectId.trim(),
                 username = state.username.trim().lowercase(),
-                password = state.password,
-                apiKey = key
+                password = state.password
             )
 
             handleResult(result, "Đã khôi phục (tải về) dữ liệu từ Cloud thành công!")
@@ -85,7 +71,7 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
 
     fun registerAccount() {
         val state = _uiState.value
-        if (state.username.isBlank() || state.password.isBlank() || state.projectId.isBlank()) {
+        if (state.username.isBlank() || state.password.isBlank()) {
             _uiState.update { it.copy(screenState = AuthScreenState.Error("Vui lòng điền đầy đủ username và password!")) }
             return
         }
@@ -93,12 +79,9 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
         _uiState.update { it.copy(screenState = AuthScreenState.Loading) }
 
         viewModelScope.launch {
-            val key = state.apiKey.trim().takeIf { it.isNotEmpty() }
             val result = repository.registerAndBackup(
-                projectId = state.projectId.trim(),
                 username = state.username.trim().lowercase(),
-                password = state.password,
-                apiKey = key
+                password = state.password
             )
 
             handleResult(result, "Đăng ký thành công và đồng bộ dữ liệu hiện tại lên Cloud!")
