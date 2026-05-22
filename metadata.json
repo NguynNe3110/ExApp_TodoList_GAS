@@ -1,0 +1,6 @@
+{
+  "name": "Todo List",
+  "description": "An elegant, lightweight Todo list application with folder organization, active/completed sorting, and optional cloud backup synchronization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
