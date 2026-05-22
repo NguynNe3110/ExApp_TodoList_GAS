@@ -39,35 +39,35 @@ private val LightColorScheme =
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFC8E6C9),
     onPrimaryContainer = Color(0xFF1B5E20),
-    
+
     // Secondary - Soft Cyan/Teal (màu xanh ngọc nhạt)
     secondary = Color(0xFF4DB6AC),
     onSecondary = Color(0xFFFFFFFF),
     secondaryContainer = Color(0xFFB2DFDB),
     onSecondaryContainer = Color(0xFF004D40),
-    
+
     // Tertiary - Soft Yellow (màu vàng nhạt)
     tertiary = Color(0xFFFFD54F),
     onTertiary = Color(0xFF5D4037),
     tertiaryContainer = Color(0xFFFFECB3),
     onTertiaryContainer = Color(0xFF3E2723),
-    
+
     // Background & Surface - Very light with subtle warm tint
     background = Color(0xFFFAFAFA),
     surface = Color(0xFFFEFEFE),
     onBackground = Color(0xFF212121),
     onSurface = Color(0xFF212121),
-    
+
     // Surface Variant - Subtle cool tint
     surfaceVariant = Color(0xFFF5F5F5),
     onSurfaceVariant = Color(0xFF424242),
-    
+
     // Error - Soft Red
     error = Color(0xFFEF9A9A),
     onError = Color(0xFFFFFFFF),
     errorContainer = Color(0xFFFFCDD2),
     onErrorContainer = Color(0xFFB71C1C),
-    
+
     outline = Color(0xFFBDBDBD),
     outlineVariant = Color(0xFFE0E0E0),
   )
