@@ -77,13 +77,11 @@ class TodoRepositoryImpl(
     }
 
     override suspend fun backupToFirestore(
-        projectId: String,
         username: String,
-        password: String,
-        apiKey: String?
+        password: String
     ): SyncResult {
         return try {
-            val response = firestoreApi.getUserDocument(projectId, username, apiKey)
+            val response = firestoreApi.getUserDocument(username)
             if (response.isSuccessful && response.body() != null) {
                 val cloudDoc = response.body()!!
                 val cloudPassword = cloudDoc.fields.password?.stringValue
@@ -95,20 +93,18 @@ class TodoRepositoryImpl(
             }
 
             // Upload data
-            performUpload(projectId, username, password, apiKey)
+            performUpload(username, password)
         } catch (e: Exception) {
             SyncResult.Error(e.localizedMessage ?: "Unknown network error during backup")
         }
     }
 
     override suspend fun restoreFromFirestore(
-        projectId: String,
         username: String,
-        password: String,
-        apiKey: String?
+        password: String
     ): SyncResult {
         return try {
-            val response = firestoreApi.getUserDocument(projectId, username, apiKey)
+            val response = firestoreApi.getUserDocument(username)
             if (response.isSuccessful && response.body() != null) {
                 val cloudDoc = response.body()!!
                 val cloudPassword = cloudDoc.fields.password?.stringValue
@@ -159,13 +155,11 @@ class TodoRepositoryImpl(
     }
 
     override suspend fun registerAndBackup(
-        projectId: String,
         username: String,
-        password: String,
-        apiKey: String?
+        password: String
     ): SyncResult {
         return try {
-            val response = firestoreApi.getUserDocument(projectId, username, apiKey)
+            val response = firestoreApi.getUserDocument(username)
             if (response.isSuccessful && response.body() != null) {
                 // User already exists in firestore, verify credentials
                 val cloudDoc = response.body()!!
@@ -174,10 +168,10 @@ class TodoRepositoryImpl(
                     return SyncResult.InvalidPassword
                 }
                 // If password matches, perform normal backup of any local data or let them know it's fine!
-                return performUpload(projectId, username, password, apiKey)
+                return performUpload(username, password)
             } else if (response.code() == 404) {
                 // Correct path! Brand new user registration!
-                return performUpload(projectId, username, password, apiKey)
+                return performUpload(username, password)
             } else {
                 SyncResult.Error("Registration failed with network code: ${response.code()}")
             }
@@ -187,10 +181,8 @@ class TodoRepositoryImpl(
     }
 
     private suspend fun performUpload(
-        projectId: String,
         username: String,
-        password: String,
-        apiKey: String?
+        password: String
     ): SyncResult {
         // Collect current local data
         val currentTodos = allTodos.first().map {
@@ -211,7 +203,7 @@ class TodoRepositoryImpl(
             )
         )
 
-        val writeResponse = firestoreApi.saveUserDocument(projectId, username, doc, apiKey)
+        val writeResponse = firestoreApi.saveUserDocument(username, doc)
         return if (writeResponse.isSuccessful) {
             SyncResult.Success
         } else {

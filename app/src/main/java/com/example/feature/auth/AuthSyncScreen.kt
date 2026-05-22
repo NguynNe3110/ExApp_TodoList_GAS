@@ -1,7 +1,6 @@
 package com.example.feature.auth
 
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +25,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -72,8 +70,6 @@ fun AuthSyncScreen(
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
-
-    var showAdvanced by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -194,69 +190,6 @@ fun AuthSyncScreen(
                         )
                     )
 
-                    // Advanced Toggle Button
-                    TextButton(
-                        onClick = { showAdvanced = !showAdvanced },
-                        modifier = Modifier.align(Alignment.Start),
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Advanced Settings",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(if (showAdvanced) "Ẩn cấu hình Firestore nâng cao" else "Hiển thị cấu hình Firestore nâng cao", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
-
-                    // Advanced Project ID Input
-                    AnimatedVisibility(visible = showAdvanced) {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            OutlinedTextField(
-                                value = state.projectId,
-                                onValueChange = { viewModel.updateProjectId(it) },
-                                label = { Text("Google Cloud Project ID", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                                singleLine = true,
-                                shape = RoundedCornerShape(16.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .testTag("auth_project_id_field"),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                    focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                                )
-                            )
-
-                            OutlinedTextField(
-                                value = state.apiKey,
-                                onValueChange = { viewModel.updateApiKey(it) },
-                                label = { Text("Firebase Web API Key (Khóa API Web)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                                singleLine = true,
-                                shape = RoundedCornerShape(16.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .testTag("auth_api_key_field"),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                    focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                                )
-                            )
-
-                            Text(
-                                text = "Lưu ý: Mặc định sử dụng demo database. Nếu sử dụng Project ID riêng, bạn cần điền Khóa API Web (lấy trong Firebase Console -> Cài đặt dự án -> Khóa API web) để vượt qua lỗi xác thực 403.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontSize = 11.sp,
-                                lineHeight = 16.sp
-                            )
-                        }
-                    }
                 }
             }
 
