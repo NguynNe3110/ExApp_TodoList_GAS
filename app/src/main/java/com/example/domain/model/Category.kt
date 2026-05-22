@@ -9,10 +9,7 @@ data class Category(
     companion object {
         // Default categories requested by the user: "học tập" (learning), "việc vặt" (chores), etc.
         val DEFAULT_CATEGORIES = listOf(
-            Category("1", "Học tập", "#E6FFFF", "school"),
-            Category("2", "Việc vặt", "#F9FFF5", "home"),
-            Category("3", "Cá nhân", "#FFFDF0", "person"),
-            Category("4", "Công việc", "#FFF5F5", "work")
+            Category("1", "Việc vặt", "#F9FFF5", "home"),
         )
     }
 }

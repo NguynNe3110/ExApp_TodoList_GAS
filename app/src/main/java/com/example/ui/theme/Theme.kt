@@ -35,16 +35,16 @@ private val DarkColorScheme =
 private val LightColorScheme =
   lightColorScheme(
     // Primary - Soft Green (màu xanh lá nhạt)
-    primary = Color(0xFF81C784),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFC8E6C9),
-    onPrimaryContainer = Color(0xFF1B5E20),
+    primary = Color(0xFF00E300),
+    onPrimary = Color(0xDBDFFFE8),
+    primaryContainer = Color(0xDBDFFFE8),
+    onPrimaryContainer = Color(0xFF418C3B),
 
     // Secondary - Soft Cyan/Teal (màu xanh ngọc nhạt)
-    secondary = Color(0xFF4DB6AC),
+    secondary = Color(0xFFD7FFF7),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFB2DFDB),
-    onSecondaryContainer = Color(0xFF004D40),
+    secondaryContainer = Color(0xFFC5FFF5),
+    onSecondaryContainer = Color(0xFFBAFFEE),
 
     // Tertiary - Soft Yellow (màu vàng nhạt)
     tertiary = Color(0xFFFFD54F),
@@ -63,10 +63,10 @@ private val LightColorScheme =
     onSurfaceVariant = Color(0xFF424242),
 
     // Error - Soft Red
-    error = Color(0xFFEF9A9A),
+    error = Color(0xFFFF0000),
     onError = Color(0xFFFFFFFF),
-    errorContainer = Color(0xFFFFCDD2),
-    onErrorContainer = Color(0xFFB71C1C),
+    errorContainer = Color(0xFFFFD0D1),
+    onErrorContainer = Color(0xFFAF0000),
 
     outline = Color(0xFFBDBDBD),
     outlineVariant = Color(0xFFE0E0E0),

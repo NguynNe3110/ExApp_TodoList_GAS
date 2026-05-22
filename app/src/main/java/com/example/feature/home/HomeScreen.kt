@@ -763,6 +763,7 @@ fun TodoItemRow(
 }
 
 // Convenient extension helpers to style pastel colors and borders elegantly in Compose
+@Composable
 fun String.toColorOrFallback(): Color {
     return try {
         Color(android.graphics.Color.parseColor(this))
