@@ -75,12 +75,13 @@ private val LightColorScheme =
 @Composable
 fun MyApplicationTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
-  // Custom design overrides dynamic coloring by default
+  // Disable dynamic coloring to always use our custom pastel color scheme
   dynamicColor: Boolean = false,
   content: @Composable () -> Unit,
 ) {
   val colorScheme =
     when {
+      // Always use our custom color scheme, ignoring system dynamic colors
       dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
         val context = LocalContext.current
         if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

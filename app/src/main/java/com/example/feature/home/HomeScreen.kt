@@ -107,7 +107,7 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFFEF7FF)),
+            .background(MaterialTheme.colorScheme.background),
         bottomBar = {
             // Persistent bottom inputs to add tasks in a gorgeous minimalist layout
             Surface(
@@ -115,7 +115,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.navigationBars),
-                color = Color(0xFFFEF7FF) // Seamless backdrop matching background
+                color = MaterialTheme.colorScheme.background // Seamless backdrop matching background
             ) {
                 Column(
                     modifier = Modifier
@@ -125,7 +125,7 @@ fun HomeScreen(
                     Text(
                         text = "Thêm công việc mới",
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = Color(0xFF1D1B20)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
@@ -135,17 +135,17 @@ fun HomeScreen(
                         OutlinedTextField(
                             value = newTaskText,
                             onValueChange = { newTaskText = it },
-                            placeholder = { Text("Bạn cần làm gì / học gì...", fontSize = 14.sp, color = Color(0xFF49454F)) },
+                            placeholder = { Text("Bạn cần làm gì / học gì...", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) },
                             modifier = Modifier
                                 .weight(1f)
                                 .testTag("add_task_input"),
                             singleLine = true,
                             shape = RoundedCornerShape(16.dp),
                             colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color.White,
-                                unfocusedContainerColor = Color.White,
-                                focusedBorderColor = Color(0xFF21005D),
-                                unfocusedBorderColor = Color(0xFFF3EDF7)
+                                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                                focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                             )
                         )
                         Spacer(modifier = Modifier.width(10.dp))
@@ -162,8 +162,8 @@ fun HomeScreen(
                             },
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFEADDFF),
-                                contentColor = Color(0xFF21005D)
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                             ),
                             modifier = Modifier
                                 .height(56.dp)
@@ -181,7 +181,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color(0xFFFEF7FF))
+                .background(MaterialTheme.colorScheme.background)
         ) {
             // Header bar
             Row(
@@ -198,19 +198,19 @@ fun HomeScreen(
                             fontWeight = FontWeight.Normal,
                             letterSpacing = (-0.5).sp
                         ),
-                        color = Color(0xFF1D1B20)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = if (activeTodosCount > 0) "$activeTodosCount công việc chưa hoàn thành" else "0 công việc còn lại",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF49454F),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Normal
                     )
                     if (registeredUser != null) {
                         Text(
                             text = "Đồng bộ: @$registeredUser",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF146C2E),
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier.padding(top = 2.dp)
                         )
@@ -223,7 +223,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .size(48.dp)
                         .background(
-                            color = Color(0xFFEADDFF),
+                            color = MaterialTheme.colorScheme.primaryContainer,
                             shape = CircleShape
                         )
                         .testTag("cloud_sync_nav_button")
@@ -231,7 +231,7 @@ fun HomeScreen(
                     Icon(
                         imageVector = Icons.Default.Refresh,
                         contentDescription = "Cloud Backup Synchronization",
-                        tint = Color(0xFF21005D)
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
@@ -240,12 +240,12 @@ fun HomeScreen(
             OutlinedTextField(
                 value = searchByTitle,
                 onValueChange = { searchByTitle = it },
-                placeholder = { Text("Tìm kiếm công việc...", fontSize = 14.sp, color = Color(0xFF49454F)) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search icon", tint = Color(0xFF49454F)) },
+                placeholder = { Text("Tìm kiếm công việc...", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search icon", tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                 trailingIcon = {
                     if (searchByTitle.isNotEmpty()) {
                         IconButton(onClick = { searchByTitle = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear search", tint = Color(0xFF49454F))
+                            Icon(Icons.Default.Clear, contentDescription = "Clear search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 },
@@ -256,10 +256,10 @@ fun HomeScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
                 colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedBorderColor = Color(0xFF21005D),
-                    unfocusedBorderColor = Color(0xFFF3EDF7)
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                 )
             )
 
@@ -277,11 +277,11 @@ fun HomeScreen(
                     Text(
                         text = "Thư mục của tôi",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = Color(0xFF1D1B20)
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     TextButton(
                         onClick = { showAddCategoryDialog = true },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF21005D))
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                     ) {
                         Icon(Icons.Default.Add, contentDescription = "Thêm thư mục", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
@@ -302,15 +302,15 @@ fun HomeScreen(
                             onClick = { viewModel.selectCategory(null) },
                             label = { Text("Tất cả", fontWeight = FontWeight.Medium) },
                             colors = InputChipDefaults.inputChipColors(
-                                selectedContainerColor = Color(0xFFEADDFF),
-                                selectedLabelColor = Color(0xFF21005D),
-                                containerColor = Color.White,
-                                labelColor = Color(0xFF49454F)
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                             border = InputChipDefaults.inputChipBorder(
                                 enabled = true,
                                 selected = isSelected,
-                                borderColor = if (isSelected) Color.Transparent else Color(0xFF79747E),
+                                borderColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline,
                                 borderWidth = 1.dp
                             )
                         )
@@ -325,15 +325,15 @@ fun HomeScreen(
                             onClick = { viewModel.selectCategory(category.id) },
                             label = { Text(category.name, fontWeight = FontWeight.Medium) },
                             colors = InputChipDefaults.inputChipColors(
-                                selectedContainerColor = if (isSelected) Color(0xFFEADDFF) else Color.White,
-                                selectedLabelColor = if (isSelected) Color(0xFF21005D) else Color(0xFF49454F),
-                                containerColor = Color.White,
-                                labelColor = Color(0xFF49454F)
+                                selectedContainerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                                selectedLabelColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
                             border = InputChipDefaults.inputChipBorder(
                                 enabled = true,
                                 selected = isSelected,
-                                borderColor = if (isSelected) Color.Transparent else Color(0xFF79747E),
+                                borderColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline,
                                 borderWidth = 1.dp
                             ),
                             trailingIcon = {
@@ -350,7 +350,7 @@ fun HomeScreen(
                                             imageVector = Icons.Default.Clear,
                                             contentDescription = "Delete Folder",
                                             modifier = Modifier.size(12.dp),
-                                            tint = if (isSelected) Color(0xFF21005D) else Color(0xFF49454F)
+                                            tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 }
@@ -388,7 +388,7 @@ fun HomeScreen(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "Empty folder logo",
-                            tint = Color(0xFFEADDFF),
+                            tint = MaterialTheme.colorScheme.primaryContainer,
                             modifier = Modifier.size(80.dp)
                         )
                         Spacer(modifier = Modifier.height(12.dp))
@@ -396,13 +396,13 @@ fun HomeScreen(
                             text = "Thư mục trống",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF21005D)
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Chưa có việc vặt hay công việc học tập nào ở đây. Nhập một việc mới ở phía dưới nhé!",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFF49454F),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 18.sp,
                             textAlign = TextAlign.Center
                         )
@@ -425,14 +425,14 @@ fun HomeScreen(
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 1.1.sp
                                 ),
-                                color = Color(0xFF1D1B20).copy(alpha = 0.7f),
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp)
                             )
                         }
 
                         items(activeTodos, key = { it.id }) { todo ->
                             val folder = state.categories.find { it.id == todo.categoryId }
-                            val baseColor = folder?.colorHex?.toColorOrFallback() ?: Color(0xFFEADDFF)
+                            val baseColor = folder?.colorHex?.toColorOrFallback() ?: MaterialTheme.colorScheme.primaryContainer
 
                             TodoItemRow(
                                 todo = todo,
@@ -461,7 +461,7 @@ fun HomeScreen(
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 1.1.sp
                                 ),
-                                color = Color(0xFF49454F).copy(alpha = 0.7f),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp)
                             )
                         }
@@ -471,7 +471,7 @@ fun HomeScreen(
                             val baseColor = if (todo.status == TodoStatus.FAILED) {
                                 Color(0xFFFFF1F1)
                             } else {
-                                folder?.colorHex?.toColorOrFallback() ?: Color(0xFFEADDFF)
+                                folder?.colorHex?.toColorOrFallback() ?: MaterialTheme.colorScheme.primaryContainer
                             }
 
                             TodoItemRow(
@@ -493,7 +493,7 @@ fun HomeScreen(
     if (showAddCategoryDialog) {
         AlertDialog(
             onDismissRequest = { showAddCategoryDialog = false },
-            title = { Text("Tạo Thư Mục Mới", color = Color(0xFF21005D), fontWeight = FontWeight.Bold) },
+            title = { Text("Tạo Thư Mục Mới", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     OutlinedTextField(
@@ -504,7 +504,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Chọn màu sắc thư mục nhẹ nhàng:", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF1D1B20))
+                    Text("Chọn màu sắc thư mục nhẹ nhàng:", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
                     Spacer(modifier = Modifier.height(8.dp))
                     LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -519,7 +519,7 @@ fun HomeScreen(
                                     .background(Color(android.graphics.Color.parseColor(hex)))
                                     .border(
                                         width = if (isColorSelected) 3.dp else 1.dp,
-                                        color = if (isColorSelected) Color(0xFF21005D) else Color.LightGray,
+                                        color = if (isColorSelected) MaterialTheme.colorScheme.onPrimaryContainer else Color.LightGray,
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .combinedClickable(
@@ -542,8 +542,8 @@ fun HomeScreen(
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFEADDFF),
-                        contentColor = Color(0xFF21005D)
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 ) {
                     Text("Tạo", fontWeight = FontWeight.Bold)
@@ -552,7 +552,7 @@ fun HomeScreen(
             dismissButton = {
                 TextButton(
                     onClick = { showAddCategoryDialog = false },
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF49454F))
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
                 ) {
                     Text("Hủy")
                 }
@@ -564,7 +564,7 @@ fun HomeScreen(
     longPressedTodo?.let { todo ->
         AlertDialog(
             onDismissRequest = { longPressedTodo = null },
-            title = { Text("Tùy chọn công việc", color = Color(0xFF21005D), fontWeight = FontWeight.Bold) },
+            title = { Text("Tùy chọn công việc", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold) },
             text = { Text("Bạn có muốn đánh dấu công việc này là \"Không Hoàn Thành\" (Dropped/Failed) hoặc xóa nó không?") },
             confirmButton = {
                 Button(
@@ -573,9 +573,9 @@ fun HomeScreen(
                         longPressedTodo = null
                         Toast.makeText(context, "Đã chuyển trạng thái Không Hoàn Thành!", Toast.LENGTH_SHORT).show()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828), contentColor = Color.White)
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828), contentColor = MaterialTheme.colorScheme.surface)
                 ) {
-                    Text("Không Hoàn Thành", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Không Hoàn Thành", color = MaterialTheme.colorScheme.surface, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -586,14 +586,14 @@ fun HomeScreen(
                             longPressedTodo = null
                             Toast.makeText(context, "Đã xóa công việc!", Toast.LENGTH_SHORT).show()
                         },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF49454F))
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
                     ) {
                         Text("Xóa hẳn", fontWeight = FontWeight.Medium)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
                         onClick = { longPressedTodo = null },
-                        colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF21005D))
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                     ) {
                         Text("Hủy", fontWeight = FontWeight.Bold)
                     }
@@ -618,15 +618,15 @@ fun TodoItemRow(
     val isFailed = todo.status == TodoStatus.FAILED
 
     val cardBg = when {
-        isCompleted -> Color(0xFFF3EDF7).copy(alpha = 0.5f)
+        isCompleted -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         isFailed -> Color(0xFFFFF5F5)
-        else -> Color.White
+        else -> MaterialTheme.colorScheme.surface
     }
 
     val cardBorderColor = when {
         isCompleted -> Color.Transparent
         isFailed -> Color(0xFFFFF1F1)
-        else -> Color(0xFFF3EDF7)
+        else -> MaterialTheme.colorScheme.outlineVariant
     }
 
     Card(
@@ -663,18 +663,18 @@ fun TodoItemRow(
                     .size(28.dp)
                     .background(
                         color = when {
-                            isCompleted -> Color(0xFF146C2E)
+                            isCompleted -> MaterialTheme.colorScheme.primary
                             isFailed -> Color(0xFFC62828)
-                            else -> Color.White
+                            else -> MaterialTheme.colorScheme.surface
                         },
                         shape = CircleShape
                     )
                     .border(
                         width = 2.dp,
                         color = when {
-                            isCompleted -> Color(0xFF146C2E)
+                            isCompleted -> MaterialTheme.colorScheme.primary
                             isFailed -> Color(0xFFC62828)
-                            else -> Color(0xFF146C2E)
+                            else -> MaterialTheme.colorScheme.primary
                         },
                         shape = CircleShape
                     )
@@ -685,14 +685,14 @@ fun TodoItemRow(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Completed tick",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.size(16.dp)
                     )
                 } else if (isFailed) {
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = "Failed mark",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.surface,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -712,9 +712,9 @@ fun TodoItemRow(
                         fontStyle = if (isCompleted) androidx.compose.ui.text.font.FontStyle.Italic else androidx.compose.ui.text.font.FontStyle.Normal
                     ),
                     color = when {
-                        isCompleted -> Color(0xFF49454F)
+                        isCompleted -> MaterialTheme.colorScheme.onSurfaceVariant
                         isFailed -> Color(0xFFC62828)
-                        else -> Color(0xFF1D1B20)
+                        else -> MaterialTheme.colorScheme.onBackground
                     },
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
@@ -733,7 +733,7 @@ fun TodoItemRow(
                     Text(
                         text = folderName,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF49454F),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Medium
                     )
                     if (isFailed) {
@@ -755,7 +755,7 @@ fun TodoItemRow(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Xóa công việc",
-                    tint = Color(0xFF49454F).copy(alpha = 0.6f)
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }
@@ -767,7 +767,7 @@ fun String.toColorOrFallback(): Color {
     return try {
         Color(android.graphics.Color.parseColor(this))
     } catch (e: Exception) {
-        Color(0xFFEADDFF)
+        MaterialTheme.colorScheme.primaryContainer
     }
 }
 
