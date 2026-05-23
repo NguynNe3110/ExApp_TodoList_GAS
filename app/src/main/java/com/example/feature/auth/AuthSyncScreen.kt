@@ -58,6 +58,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -190,6 +191,51 @@ fun AuthSyncScreen(
                             unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                         )
                     )
+
+                    OutlinedTextField(
+                        value = state.linkedEmail,
+                        onValueChange = { viewModel.updateLinkedEmail(it) },
+                        label = { Text("Email Gmail liên kết / khôi phục") },
+                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("auth_linked_email_field"),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        visualTransformation = VisualTransformation.None,
+                        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    )
+
+                    Text(
+                        text = "Dùng email này để nhận link khôi phục mật khẩu Firebase.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.saveSession()
+                            Toast.makeText(context, "Đã lưu tài khoản & Gmail liên kết.", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Lưu tài khoản & Gmail liên kết")
+                    }
+
+                    OutlinedButton(
+                        onClick = { viewModel.sendPasswordResetEmail() },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Gửi link khôi phục mật khẩu")
+                    }
 
                 }
             }

@@ -2,10 +2,13 @@ package com.example.core.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.core.persistence.AuthSessionStore
 import com.example.data.local.AppDatabase
 import com.example.data.remote.api.FirestoreApi
+import com.example.data.repository.FirebaseAuthRepository
 import com.example.data.repository.TodoRepositoryImpl
 import com.example.domain.repository.TodoRepository
+import com.google.firebase.auth.FirebaseAuth
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -63,6 +66,14 @@ class AppContainer(private val context: Context) {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(FirestoreApi::class.java)
+    }
+
+    val authSessionStore: AuthSessionStore by lazy {
+        AuthSessionStore(context)
+    }
+
+    val firebaseAuthRepository: FirebaseAuthRepository by lazy {
+        FirebaseAuthRepository(FirebaseAuth.getInstance())
     }
 
     val todoRepository: TodoRepository by lazy {

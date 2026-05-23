@@ -10,6 +10,7 @@ sealed class AuthScreenState {
 data class AuthUiState(
     val username: String = "",
     val password: String = "",
+    val linkedEmail: String = "",
 
     val screenState: AuthScreenState = AuthScreenState.Idle,
     val loggedInUser: String? = null,
