@@ -81,7 +81,7 @@ class TodoRepositoryImpl(
         password: String
     ): SyncResult {
         return try {
-            val response = firestoreApi.getUserDocument(username)
+            val response = firestoreApi.getUserDocument(username = username)
             if (response.isSuccessful && response.body() != null) {
                 val cloudDoc = response.body()!!
                 val cloudPassword = cloudDoc.fields.password?.stringValue
@@ -104,7 +104,7 @@ class TodoRepositoryImpl(
         password: String
     ): SyncResult {
         return try {
-            val response = firestoreApi.getUserDocument(username)
+            val response = firestoreApi.getUserDocument(username = username)
             if (response.isSuccessful && response.body() != null) {
                 val cloudDoc = response.body()!!
                 val cloudPassword = cloudDoc.fields.password?.stringValue
@@ -159,7 +159,7 @@ class TodoRepositoryImpl(
         password: String
     ): SyncResult {
         return try {
-            val response = firestoreApi.getUserDocument(username)
+            val response = firestoreApi.getUserDocument(username = username)
             if (response.isSuccessful && response.body() != null) {
                 // User already exists in firestore, verify credentials
                 val cloudDoc = response.body()!!
@@ -203,7 +203,7 @@ class TodoRepositoryImpl(
             )
         )
 
-        val writeResponse = firestoreApi.saveUserDocument(username, doc)
+        val writeResponse = firestoreApi.saveUserDocument(username = username, document = doc)
         return if (writeResponse.isSuccessful) {
             SyncResult.Success
         } else {
