@@ -31,7 +31,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
@@ -77,8 +76,6 @@ import com.example.domain.model.TodoStatus
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
-    registeredUser: String?,
-    onNavigateToSync: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -205,33 +202,6 @@ fun HomeScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Normal
-                    )
-                    if (registeredUser != null) {
-                        Text(
-                            text = "Đồng bộ: @$registeredUser",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Medium,
-                            modifier = Modifier.padding(top = 2.dp)
-                        )
-                    }
-                }
-
-                // Cloud Sync navigation button
-                IconButton(
-                    onClick = onNavigateToSync,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = CircleShape
-                        )
-                        .testTag("cloud_sync_nav_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Cloud Backup Synchronization",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
             }
