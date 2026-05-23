@@ -1,38 +1,76 @@
 ```
-# Gradle
-.gradle/
+# Compiled and build artifacts
+*.class
+*.o
+*.obj
+*.out
 build/
-!gradle/wrapper/gradle-wrapper.jar
+target/
 
-# IDE
-.idea/
-*.iml
-*.ipr
-*.iws
-.vscode/
+# Dependencies
+.gradle/
+libs/
 
-# Logs
+# Logs and temp files
 *.log
+*.tmp
+*.swp
+
+# Editors
+.idea/
+.vscode/
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Dependencies
-node_modules/
-vendor/
+# Coverage reports
+coverage/
+htmlcov/
+*.coverage
 
-# OS
-.DS_Store
-Thumbs.db
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+.eggs/
 
-# Archives
-*.zip
+# Java specific
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# Distribution / packaging
 *.tar.gz
+*.zip
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
 *.tar.bz2
 *.tar.xz
-*.gz
-*.rar
-*.7z
+*.tar.zst
+
+# System files
+.DS_Store
+Thumbs.db
 ```
