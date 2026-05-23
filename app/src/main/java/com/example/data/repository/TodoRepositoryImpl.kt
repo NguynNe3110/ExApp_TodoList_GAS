@@ -79,6 +79,13 @@ class TodoRepositoryImpl(
         }
     }
 
+    override suspend fun updateTodo(todoItem: TodoItem) {
+        withContext(Dispatchers.IO) {
+            todoDao.insertTodo(TodoEntity.fromDomain(todoItem))
+            syncCurrentDataToFirestore()
+        }
+    }
+
     override suspend fun deleteTodoById(id: String) {
         withContext(Dispatchers.IO) {
             todoDao.deleteTodoById(id)

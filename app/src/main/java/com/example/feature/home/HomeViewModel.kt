@@ -60,6 +60,22 @@ class HomeViewModel(private val repository: TodoRepository) : ViewModel() {
         }
     }
 
+    fun updateTodo(todoId: String, title: String, categoryId: String, status: TodoStatus) {
+        val trimmedTitle = title.trim()
+        if (trimmedTitle.isBlank()) return
+
+        viewModelScope.launch {
+            val item = uiState.value.todos.find { it.id == todoId } ?: return@launch
+            repository.updateTodo(
+                item.copy(
+                    title = trimmedTitle,
+                    categoryId = categoryId,
+                    status = status
+                )
+            )
+        }
+    }
+
     fun toggleTodoCompleted(todoId: String) {
         viewModelScope.launch {
             val todos = uiState.value.todos

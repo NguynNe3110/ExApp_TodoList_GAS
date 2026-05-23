@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -34,7 +35,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -59,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -78,6 +79,38 @@ import androidx.compose.ui.unit.sp
 import com.example.domain.model.Category
 import com.example.domain.model.TodoItem
 import com.example.domain.model.TodoStatus
+
+@Immutable
+private data class TodoRowUiModel(
+    val todo: TodoItem,
+    val id: String,
+    val title: String,
+    val folderName: String,
+    val backgroundColor: Color,
+    val status: TodoStatus
+)
+
+@Immutable
+private sealed interface HomeListItem {
+    val key: String
+
+    @Immutable
+    data class Section(val title: String) : HomeListItem {
+        override val key: String = "section:$title"
+    }
+
+    @Immutable
+    data class TodoRow(val row: TodoRowUiModel) : HomeListItem {
+        override val key: String = "todo:${row.id}"
+    }
+}
+
+@Immutable
+private data class HomeListContent(
+    val items: List<HomeListItem>,
+    val activeCount: Int,
+    val completedCount: Int
+)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -99,20 +132,28 @@ fun HomeScreen(
     var newCategoryName by remember { mutableStateOf("") }
     var newCategoryColorHex by remember { mutableStateOf("#E6FFFF") }
     var longPressedTodo by remember { mutableStateOf<TodoItem?>(null) }
+    var editingTodo by remember { mutableStateOf<TodoItem?>(null) }
+    var editingTodoTitle by remember { mutableStateOf("") }
+    var editingTodoCategoryId by remember { mutableStateOf<String?>(null) }
+    var editingTodoStatus by remember { mutableStateOf(TodoStatus.ACTIVE) }
     var longPressedCategory by remember { mutableStateOf<Category?>(null) }
     var categoryRenameText by remember { mutableStateOf("") }
 
-    val colorOptions = listOf(
+    val colorOptions = remember {
+        listOf(
         "#EADDFF" to "Linh Lan Sáng (Tím)",
         "#E6FFFF" to "Xanh Dương Sáng",
         "#F9FFF5" to "Xanh Lá Nhạt",
         "#FFFDF0" to "Vàng Kem",
         "#FFF5F5" to "Đỏ San Hô Nhạt"
-    )
+        )
+    }
 
-    val activeTodosCount = state.todos.count { it.status == TodoStatus.ACTIVE }
     val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
     val searchFocusRequester = remember { FocusRequester() }
+    val activeTodosCount = remember(state.todos) { state.todos.count { it.status == TodoStatus.ACTIVE } }
+    val fallbackFolderColor = MaterialTheme.colorScheme.primaryContainer
+    val failedTodoColor = Color(0xFFFFF1F1)
 
     LaunchedEffect(showSearchField) {
         if (showSearchField) {
@@ -327,16 +368,19 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            val filteredTodos = state.todos.filter { item ->
-                val matchesCategory = state.selectedCategoryId == null || item.categoryId == state.selectedCategoryId
-                val matchesSearch = searchByTitle.isBlank() || item.title.contains(searchByTitle, ignoreCase = true)
-                matchesCategory && matchesSearch
+            val listState = rememberLazyListState()
+            val listContent = remember(state.todos, state.categories, searchByTitle, state.selectedCategoryId, fallbackFolderColor, failedTodoColor) {
+                buildHomeListContent(
+                    todos = state.todos,
+                    categories = state.categories,
+                    searchQuery = searchByTitle,
+                    selectedCategoryId = state.selectedCategoryId,
+                    fallbackFolderColor = fallbackFolderColor,
+                    failedTodoColor = failedTodoColor
+                )
             }
 
-            val activeTodos = filteredTodos.filter { it.status == TodoStatus.ACTIVE }
-            val completedOrFailedTodos = filteredTodos.filter { it.status != TodoStatus.ACTIVE }
-
-            if (filteredTodos.isEmpty()) {
+            if (listContent.items.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -373,73 +417,58 @@ fun HomeScreen(
                 }
             } else {
                 LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    if (activeTodos.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "CẦN THỰC HIỆN (${activeTodos.size})",
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 1.1.sp
-                                ),
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                                modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp)
-                            )
+                    items(
+                        items = listContent.items,
+                        key = { it.key },
+                        contentType = {
+                            when (it) {
+                                is HomeListItem.Section -> "section"
+                                is HomeListItem.TodoRow -> "todo"
+                            }
                         }
-
-                        items(activeTodos, key = { it.id }) { todo ->
-                            val folder = state.categories.find { it.id == todo.categoryId }
-                            val baseColor = folder?.colorHex?.toColorOrFallback() ?: MaterialTheme.colorScheme.primaryContainer
-
-                            TodoItemRow(
-                                todo = todo,
-                                folderName = folder?.name ?: "Tất cả",
-                                backgroundColor = baseColor,
-                                onClick = { viewModel.toggleTodoCompleted(todo.id) },
-                                onLongClick = { longPressedTodo = todo },
-                                onDelete = { viewModel.deleteTodo(todo.id) }
-                            )
-                        }
-                    }
-
-                    if (activeTodos.isNotEmpty() && completedOrFailedTodos.isNotEmpty()) {
-                        item { Spacer(modifier = Modifier.height(16.dp)) }
-                    }
-
-                    if (completedOrFailedTodos.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "ĐÃ HOÀN THÀNH (${completedOrFailedTodos.size})",
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 1.1.sp
-                                ),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp)
-                            )
-                        }
-
-                        items(completedOrFailedTodos, key = { it.id }) { todo ->
-                            val folder = state.categories.find { it.id == todo.categoryId }
-                            val baseColor = if (todo.status == TodoStatus.FAILED) {
-                                Color(0xFFFFF1F1)
-                            } else {
-                                folder?.colorHex?.toColorOrFallback() ?: MaterialTheme.colorScheme.primaryContainer
+                    ) { item ->
+                        when (item) {
+                            is HomeListItem.Section -> {
+                                if (item.title.isBlank()) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                } else {
+                                    Text(
+                                        text = item.title,
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.1.sp
+                                        ),
+                                        color = if (item.title.startsWith("CẦN")) {
+                                            MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                        },
+                                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp)
+                                    )
+                                }
                             }
 
-                            TodoItemRow(
-                                todo = todo,
-                                folderName = folder?.name ?: "Tất cả",
-                                backgroundColor = baseColor,
-                                onClick = { viewModel.toggleTodoCompleted(todo.id) },
-                                onLongClick = { viewModel.toggleTodoCompleted(todo.id) },
-                                onDelete = { viewModel.deleteTodo(todo.id) }
-                            )
+                            is HomeListItem.TodoRow -> {
+                                TodoItemRow(
+                                    todo = item.row.todo,
+                                    folderName = item.row.folderName,
+                                    backgroundColor = item.row.backgroundColor,
+                                    onClick = { viewModel.toggleTodoCompleted(item.row.id) },
+                                    onLongClick = {
+                                        editingTodo = item.row.todo
+                                        editingTodoTitle = item.row.title
+                                        editingTodoCategoryId = item.row.todo.categoryId
+                                        editingTodoStatus = item.row.status
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -628,38 +657,107 @@ fun HomeScreen(
         )
     }
 
-    longPressedTodo?.let { todo ->
+    editingTodo?.let { todo ->
         AlertDialog(
-            onDismissRequest = { longPressedTodo = null },
-            title = { Text("Tùy chọn công việc", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold) },
-            text = { Text("Bạn có muốn đánh dấu công việc này là \"Không Hoàn Thành\" (Dropped/Failed) hoặc xóa nó không?") },
+            onDismissRequest = {
+                editingTodo = null
+                editingTodoTitle = ""
+                editingTodoCategoryId = null
+                editingTodoStatus = TodoStatus.ACTIVE
+            },
+            title = { Text("Sửa công việc", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = editingTodoTitle,
+                        onValueChange = { editingTodoTitle = it },
+                        label = { Text("Tên công việc") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Text("Chọn thư mục", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(state.categories, key = { it.id }) { category ->
+                            val isSelected = editingTodoCategoryId == category.id
+                            Surface(
+                                modifier = Modifier.combinedClickable(onClick = { editingTodoCategoryId = category.id }),
+                                shape = RoundedCornerShape(50),
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline)
+                            ) {
+                                Text(
+                                    text = category.name,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Text("Trạng thái", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(listOf(TodoStatus.ACTIVE, TodoStatus.COMPLETED, TodoStatus.FAILED), key = { it.name }) { status ->
+                            val isSelected = editingTodoStatus == status
+                            Surface(
+                                modifier = Modifier.combinedClickable(onClick = { editingTodoStatus = status }),
+                                shape = RoundedCornerShape(50),
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline)
+                            ) {
+                                Text(
+                                    text = when (status) {
+                                        TodoStatus.ACTIVE -> "Đang làm"
+                                        TodoStatus.COMPLETED -> "Hoàn thành"
+                                        TodoStatus.FAILED -> "Không hoàn thành"
+                                    },
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.markTodoFailed(todo.id)
-                        longPressedTodo = null
-                        Toast.makeText(context, "Đã chuyển trạng thái Không Hoàn Thành!", Toast.LENGTH_SHORT).show()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828), contentColor = MaterialTheme.colorScheme.surface)
-                ) {
-                    Text("Không Hoàn Thành", color = MaterialTheme.colorScheme.surface, fontWeight = FontWeight.Bold)
-                }
+                        val selectedCategory = editingTodoCategoryId ?: state.categories.firstOrNull()?.id ?: todo.categoryId
+                        viewModel.updateTodo(todo.id, editingTodoTitle, selectedCategory, editingTodoStatus)
+                        editingTodo = null
+                        editingTodoTitle = ""
+                        editingTodoCategoryId = null
+                        editingTodoStatus = TodoStatus.ACTIVE
+                        Toast.makeText(context, "Đã cập nhật công việc!", Toast.LENGTH_SHORT).show()
+                    }
+                ) { Text("Lưu") }
             },
             dismissButton = {
                 Row {
                     TextButton(
                         onClick = {
                             viewModel.deleteTodo(todo.id)
-                            longPressedTodo = null
+                            editingTodo = null
+                            editingTodoTitle = ""
+                            editingTodoCategoryId = null
+                            editingTodoStatus = TodoStatus.ACTIVE
                             Toast.makeText(context, "Đã xóa công việc!", Toast.LENGTH_SHORT).show()
                         },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
                     ) {
-                        Text("Xóa hẳn", fontWeight = FontWeight.Medium)
+                        Text("Xóa", fontWeight = FontWeight.Medium)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(
-                        onClick = { longPressedTodo = null },
+                        onClick = {
+                            editingTodo = null
+                            editingTodoTitle = ""
+                            editingTodoCategoryId = null
+                            editingTodoStatus = TodoStatus.ACTIVE
+                        },
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
                     ) {
                         Text("Hủy", fontWeight = FontWeight.Bold)
@@ -677,7 +775,6 @@ fun TodoItemRow(
     backgroundColor: Color,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isCompleted = todo.status == TodoStatus.COMPLETED
@@ -698,7 +795,6 @@ fun TodoItemRow(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .animateContentSize()
             .border(
                 width = 1.dp,
                 color = cardBorderColor,
@@ -805,36 +901,88 @@ fun TodoItemRow(
                     if (isFailed) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "â€¢ KhĂ´ng hoĂ n thĂ nh",
+                            text = "Không thể hoàn thành",
                             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                             color = Color(0xFFC62828)
                         )
                     }
                 }
             }
-
-            // Quick Delete Button
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "XĂ³a cĂ´ng viá»‡c",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                )
-            }
         }
     }
 }
 
+private fun buildHomeListContent(
+    todos: List<TodoItem>,
+    categories: List<Category>,
+    searchQuery: String,
+    selectedCategoryId: String?,
+    fallbackFolderColor: Color,
+    failedTodoColor: Color
+): HomeListContent {
+    val categoryMetaMap = categories.associate { category ->
+        category.id to (category.name to category.colorHex.toColorOrFallback(fallbackFolderColor))
+    }
+    val activeRows = ArrayList<TodoRowUiModel>(todos.size)
+    val completedRows = ArrayList<TodoRowUiModel>(todos.size)
+
+    for (todo in todos) {
+        val matchesCategory = selectedCategoryId == null || todo.categoryId == selectedCategoryId
+        if (!matchesCategory) continue
+
+        val matchesSearch = searchQuery.isBlank() || todo.title.contains(searchQuery, ignoreCase = true)
+        if (!matchesSearch) continue
+
+        val folderMeta = categoryMetaMap[todo.categoryId]
+        val row = TodoRowUiModel(
+            todo = todo,
+            id = todo.id,
+            title = todo.title,
+            folderName = folderMeta?.first ?: "Tất cả",
+            backgroundColor = if (todo.status == TodoStatus.FAILED) {
+                failedTodoColor
+            } else {
+                folderMeta?.second ?: fallbackFolderColor
+            },
+            status = todo.status
+        )
+
+        if (todo.status == TodoStatus.ACTIVE) {
+            activeRows.add(row)
+        } else {
+            completedRows.add(row)
+        }
+    }
+
+    val items = buildList<HomeListItem> {
+        if (activeRows.isNotEmpty()) {
+            add(HomeListItem.Section("CẦN THỰC HIỆN (${activeRows.size})"))
+            activeRows.forEach { add(HomeListItem.TodoRow(it)) }
+        }
+
+        if (activeRows.isNotEmpty() && completedRows.isNotEmpty()) {
+            add(HomeListItem.Section(""))
+        }
+
+        if (completedRows.isNotEmpty()) {
+            add(HomeListItem.Section("ĐÃ HOÀN THÀNH (${completedRows.size})"))
+            completedRows.forEach { add(HomeListItem.TodoRow(it)) }
+        }
+    }
+
+    return HomeListContent(
+        items = items,
+        activeCount = activeRows.size,
+        completedCount = completedRows.size
+    )
+}
+
 // Convenient extension helpers to style pastel colors and borders elegantly in Compose
-@Composable
-fun String.toColorOrFallback(): Color {
+fun String.toColorOrFallback(fallback: Color): Color {
     return try {
         Color(android.graphics.Color.parseColor(this))
     } catch (e: Exception) {
-        MaterialTheme.colorScheme.primaryContainer
+        fallback
     }
 }
 

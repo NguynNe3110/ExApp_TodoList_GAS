@@ -18,6 +18,7 @@ interface TodoRepository {
     fun setCloudSyncCredentials(username: String, password: String)
 
     suspend fun insertTodo(todo: TodoItem)
+    suspend fun updateTodo(todo: TodoItem)
     suspend fun deleteTodoById(id: String)
     suspend fun insertCategory(category: Category)
     suspend fun deleteCategoryById(id: String)
