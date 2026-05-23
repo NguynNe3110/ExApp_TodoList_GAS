@@ -11,11 +11,13 @@ interface FirestoreApi {
 
     @GET("projects/{projectId}/databases/(default)/documents/users/{username}")
     suspend fun getUserDocument(
+        @Path("projectId") projectId: String = "todolist-f0385",
         @Path("username") username: String
     ): Response<FirestoreDocument>
 
     @PATCH("projects/{projectId}/databases/(default)/documents/users/{username}")
     suspend fun saveUserDocument(
+        @Path("projectId") projectId: String = "todolist-f0385",
         @Path("username") username: String,
         @Body document: FirestoreDocument
     ): Response<FirestoreDocument>
