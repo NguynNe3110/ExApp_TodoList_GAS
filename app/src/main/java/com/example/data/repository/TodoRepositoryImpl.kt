@@ -21,11 +21,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 class TodoRepositoryImpl(
     private val todoDao: TodoDao,
     private val firestoreApi: FirestoreApi
 ) : TodoRepository {
+
+    private val syncMutex = Mutex()
+    private var cloudUsername: String? = null
+    private var cloudPassword: String? = null
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -60,20 +67,37 @@ class TodoRepositoryImpl(
         entities.map { it.toDomain() }
     }
 
+    override fun setCloudSyncCredentials(username: String, password: String) {
+        cloudUsername = username
+        cloudPassword = password
+    }
+
     override suspend fun insertTodo(todoItem: TodoItem) {
-        todoDao.insertTodo(TodoEntity.fromDomain(todoItem))
+        withContext(Dispatchers.IO) {
+            todoDao.insertTodo(TodoEntity.fromDomain(todoItem))
+            syncCurrentDataToFirestore()
+        }
     }
 
     override suspend fun deleteTodoById(id: String) {
-        todoDao.deleteTodoById(id)
+        withContext(Dispatchers.IO) {
+            todoDao.deleteTodoById(id)
+            syncCurrentDataToFirestore()
+        }
     }
 
     override suspend fun insertCategory(category: Category) {
-        todoDao.insertCategory(CategoryEntity.fromDomain(category))
+        withContext(Dispatchers.IO) {
+            todoDao.insertCategory(CategoryEntity.fromDomain(category))
+            syncCurrentDataToFirestore()
+        }
     }
 
     override suspend fun deleteCategoryById(id: String) {
-        todoDao.deleteCategoryById(id)
+        withContext(Dispatchers.IO) {
+            todoDao.deleteCategoryById(id)
+            syncCurrentDataToFirestore()
+        }
     }
 
     override suspend fun backupToFirestore(
@@ -184,6 +208,7 @@ class TodoRepositoryImpl(
         username: String,
         password: String
     ): SyncResult {
+        setCloudSyncCredentials(username, password)
         // Collect current local data
         val currentTodos = allTodos.first().map {
             TodoJsonModel(it.id, it.title, it.categoryId, it.status.name, it.createdAt)
@@ -208,6 +233,14 @@ class TodoRepositoryImpl(
             SyncResult.Success
         } else {
             SyncResult.Error("Data save failure: ${writeResponse.code()}")
+        }
+    }
+
+    private suspend fun syncCurrentDataToFirestore() {
+        syncMutex.withLock {
+            val currentUsername = cloudUsername ?: return
+            val currentPassword = cloudPassword ?: return
+            performUpload(currentUsername, currentPassword)
         }
     }
 }

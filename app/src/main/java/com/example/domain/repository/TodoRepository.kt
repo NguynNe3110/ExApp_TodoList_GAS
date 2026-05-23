@@ -15,6 +15,8 @@ interface TodoRepository {
     val allTodos: Flow<List<TodoItem>>
     val allCategories: Flow<List<Category>>
 
+    fun setCloudSyncCredentials(username: String, password: String)
+
     suspend fun insertTodo(todo: TodoItem)
     suspend fun deleteTodoById(id: String)
     suspend fun insertCategory(category: Category)

@@ -46,6 +46,10 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
                 password = state.password
             )
 
+            if (result is SyncResult.Success) {
+                repository.setCloudSyncCredentials(state.username.trim().lowercase(), state.password)
+            }
+
             handleResult(result, "Đã sao lưu (đồng bộ lên) Cloud thành công!")
         }
     }
@@ -65,6 +69,10 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
                 password = state.password
             )
 
+            if (result is SyncResult.Success) {
+                repository.setCloudSyncCredentials(state.username.trim().lowercase(), state.password)
+            }
+
             handleResult(result, "Đã khôi phục (tải về) dữ liệu từ Cloud thành công!")
         }
     }
@@ -83,6 +91,10 @@ class AuthViewModel(private val repository: TodoRepository) : ViewModel() {
                 username = state.username.trim().lowercase(),
                 password = state.password
             )
+
+            if (result is SyncResult.Success) {
+                repository.setCloudSyncCredentials(state.username.trim().lowercase(), state.password)
+            }
 
             handleResult(result, "Đăng ký thành công và đồng bộ dữ liệu hiện tại lên Cloud!")
         }

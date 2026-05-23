@@ -273,23 +273,6 @@ fun AuthSyncScreen(
                     Text("Tải Về & Khôi Phục (Restore)", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 }
 
-                // Action: Backup (đưa dữ liệu local lên cloud)
-                Button(
-                    onClick = { viewModel.backupCloud() },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        contentColor = MaterialTheme.colorScheme.surface
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                        .testTag("auth_backup_button"),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-                ) {
-                    Text("Đồng Bộ & Lưu Lên Cloud (Backup)", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                }
-
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
 
                 // Action: Register (tạo tài khoản mới)

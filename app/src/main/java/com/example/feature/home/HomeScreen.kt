@@ -208,7 +208,7 @@ fun HomeScreen(
                     )
                     if (registeredUser != null) {
                         Text(
-                            text = "Đồng bộ: @$registeredUser",
+                            text = "Tài khoản đồng bộ: @$registeredUser",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium,
@@ -456,7 +456,7 @@ fun HomeScreen(
                     if (completedOrFailedTodos.isNotEmpty()) {
                         item {
                             Text(
-                                text = "ĐA HOÀN THÀNH (${completedOrFailedTodos.size})",
+                                text = "ĐÃ HOÀN THÀNH (${completedOrFailedTodos.size})",
                                 style = MaterialTheme.typography.labelMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 1.1.sp
