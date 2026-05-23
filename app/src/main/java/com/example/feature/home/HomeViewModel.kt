@@ -98,6 +98,16 @@ class HomeViewModel(private val repository: TodoRepository) : ViewModel() {
         }
     }
 
+    fun renameCategory(categoryId: String, newName: String) {
+        val trimmedName = newName.trim()
+        if (trimmedName.isBlank()) return
+
+        viewModelScope.launch {
+            val category = uiState.value.categories.find { it.id == categoryId } ?: return@launch
+            repository.insertCategory(category.copy(name = trimmedName))
+        }
+    }
+
     fun deleteTodo(todoId: String) {
         viewModelScope.launch {
             repository.deleteTodoById(todoId)

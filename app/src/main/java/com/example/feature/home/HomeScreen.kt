@@ -1,7 +1,12 @@
-package com.example.feature.home
+﻿package com.example.feature.home
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,20 +17,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -42,8 +46,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -51,6 +53,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,8 +63,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -85,15 +91,17 @@ fun HomeScreen(
     val context = LocalContext.current
 
     var searchByTitle by remember { mutableStateOf("") }
+    var showSearchField by remember { mutableStateOf(false) }
+    var showAddTodoDialog by remember { mutableStateOf(false) }
     var newTaskText by remember { mutableStateOf("") }
+    var selectedTaskCategoryId by remember { mutableStateOf<String?>(null) }
     var showAddCategoryDialog by remember { mutableStateOf(false) }
     var newCategoryName by remember { mutableStateOf("") }
     var newCategoryColorHex by remember { mutableStateOf("#E6FFFF") }
-
-    // Dialog state for long press action
     var longPressedTodo by remember { mutableStateOf<TodoItem?>(null) }
+    var longPressedCategory by remember { mutableStateOf<Category?>(null) }
+    var categoryRenameText by remember { mutableStateOf("") }
 
-    // Color choices for creating a custom folder
     val colorOptions = listOf(
         "#EADDFF" to "Linh Lan Sáng (Tím)",
         "#E6FFFF" to "Xanh Dương Sáng",
@@ -103,77 +111,35 @@ fun HomeScreen(
     )
 
     val activeTodosCount = state.todos.count { it.status == TodoStatus.ACTIVE }
+    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    val searchFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(showSearchField) {
+        if (showSearchField) {
+            searchFocusRequester.requestFocus()
+        }
+    }
 
     Scaffold(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-        bottomBar = {
-            // Persistent bottom inputs to add tasks in a gorgeous minimalist layout
-            Surface(
-                tonalElevation = 0.dp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.navigationBars),
-                color = MaterialTheme.colorScheme.background // Seamless backdrop matching background
+        floatingActionButton = {
+            Button(
+                onClick = {
+                    selectedTaskCategoryId = state.selectedCategoryId ?: state.categories.firstOrNull()?.id
+                    showAddTodoDialog = true
+                },
+                shape = CircleShape,
+                modifier = Modifier.size(64.dp),
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                ) {
-                    Text(
-                        text = "Thêm công việc mới",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = newTaskText,
-                            onValueChange = { newTaskText = it },
-                            placeholder = { Text("Bạn cần làm gì / học gì...", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                            modifier = Modifier
-                                .weight(1f)
-                                .testTag("add_task_input"),
-                            singleLine = true,
-                            shape = RoundedCornerShape(16.dp),
-                            colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                                focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Button(
-                            onClick = {
-                                if (newTaskText.isBlank()) {
-                                    Toast.makeText(context, "Vui lòng nhập tên công việc!", Toast.LENGTH_SHORT).show()
-                                    return@Button
-                                }
-                                val selectedCatId = state.selectedCategoryId ?: state.categories.firstOrNull()?.id ?: "1"
-                                viewModel.addTodo(newTaskText, selectedCatId)
-                                newTaskText = ""
-                                Toast.makeText(context, "Đã thêm công việc thành công!", Toast.LENGTH_SHORT).show()
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ),
-                            modifier = Modifier
-                                .height(56.dp)
-                                .testTag("add_task_button"),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "Thêm", modifier = Modifier.size(24.dp))
-                        }
-                    }
-                }
+                Icon(Icons.Default.Add, contentDescription = "Thêm công việc", modifier = Modifier.size(28.dp))
             }
         }
     ) { innerPadding ->
@@ -183,7 +149,6 @@ fun HomeScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            // Header bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -217,56 +182,80 @@ fun HomeScreen(
                     }
                 }
 
-                // Cloud Sync navigation button
-                IconButton(
-                    onClick = onNavigateToSync,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = CircleShape
-                        )
-                        .testTag("cloud_sync_nav_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Cloud Backup Synchronization",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = {
+                            showSearchField = !showSearchField
+                            if (!showSearchField) {
+                                searchByTitle = ""
+                                keyboardController?.hide()
+                            }
+                        },
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(MaterialTheme.colorScheme.surface, CircleShape)
+                            .testTag("search_toggle_button")
+                    ) {
+                        Icon(Icons.Default.Search, contentDescription = "Tìm kiếm công việc", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    IconButton(
+                        onClick = onNavigateToSync,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape)
+                            .testTag("cloud_sync_nav_button")
+                    ) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Cloud Backup Synchronization", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
                 }
             }
 
-            // Search bar style matched to theme
-            OutlinedTextField(
-                value = searchByTitle,
-                onValueChange = { searchByTitle = it },
-                placeholder = { Text("Tìm kiếm công việc...", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search icon", tint = MaterialTheme.colorScheme.onSurfaceVariant) },
-                trailingIcon = {
-                    if (searchByTitle.isNotEmpty()) {
-                        IconButton(onClick = { searchByTitle = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            AnimatedVisibility(
+                visible = showSearchField,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                OutlinedTextField(
+                    value = searchByTitle,
+                    onValueChange = { searchByTitle = it },
+                    placeholder = { Text("Tìm kiếm công việc...", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search icon", tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    trailingIcon = {
+                        if (searchByTitle.isNotEmpty()) {
+                            IconButton(onClick = { searchByTitle = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Clear search", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .testTag("search_todo_bar"),
-                singleLine = true,
-                shape = RoundedCornerShape(16.dp),
-                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 12.dp)
+                        .focusRequester(searchFocusRequester)
+                        .testTag("search_todo_bar"),
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp),
+                    colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    ),
+                    keyboardOptions = KeyboardOptions.Default,
+                    keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
                 )
-            )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Folders / Categories Horizontal Scroll Section
             Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Nhấn giữ thư mục để đổi tên hoặc xóa.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
+                )
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -294,75 +283,50 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // "All" / "Tất cả" category item
                     item {
                         val isSelected = state.selectedCategoryId == null
-                        InputChip(
-                            selected = isSelected,
-                            onClick = { viewModel.selectCategory(null) },
-                            label = { Text("Tất cả", fontWeight = FontWeight.Medium) },
-                            colors = InputChipDefaults.inputChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            border = InputChipDefaults.inputChipBorder(
-                                enabled = true,
-                                selected = isSelected,
-                                borderColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline,
-                                borderWidth = 1.dp
+                        Surface(
+                            modifier = Modifier.combinedClickable(onClick = { viewModel.selectCategory(null) }),
+                            shape = RoundedCornerShape(50),
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline)
+                        ) {
+                            Text(
+                                text = "Tất cả",
+                                fontWeight = FontWeight.Medium,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
                             )
-                        )
+                        }
                     }
 
                     items(state.categories) { category ->
                         val isSelected = state.selectedCategoryId == category.id
-                        val designColor = category.colorHex.toColorOrFallback()
-
-                        InputChip(
-                            selected = isSelected,
-                            onClick = { viewModel.selectCategory(category.id) },
-                            label = { Text(category.name, fontWeight = FontWeight.Medium) },
-                            colors = InputChipDefaults.inputChipColors(
-                                selectedContainerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                                selectedLabelColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            border = InputChipDefaults.inputChipBorder(
-                                enabled = true,
-                                selected = isSelected,
-                                borderColor = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline,
-                                borderWidth = 1.dp
-                            ),
-                            trailingIcon = {
-                                // Don't allow deleting default seed categories 1-4 for stability, but custom ones are deletable
-                                if (category.id != "1" && category.id != "2" && category.id != "3" && category.id != "4") {
-                                    IconButton(
-                                        onClick = {
-                                            viewModel.deleteCategory(category.id)
-                                            Toast.makeText(context, "Đã xóa thư mục!", Toast.LENGTH_SHORT).show()
-                                        },
-                                        modifier = Modifier.size(16.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Clear,
-                                            contentDescription = "Delete Folder",
-                                            modifier = Modifier.size(12.dp),
-                                            tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
+                        Surface(
+                            modifier = Modifier.combinedClickable(
+                                onClick = { viewModel.selectCategory(category.id) },
+                                onLongClick = {
+                                    longPressedCategory = category
+                                    categoryRenameText = category.name
                                 }
-                            }
-                        )
+                            ),
+                            shape = RoundedCornerShape(50),
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline)
+                        ) {
+                            Text(
+                                text = category.name,
+                                fontWeight = FontWeight.Medium,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                            )
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Main To-Do list partition (Active on top, Completed & Failed on bottom)
             val filteredTodos = state.todos.filter { item ->
                 val matchesCategory = state.selectedCategoryId == null || item.categoryId == state.selectedCategoryId
                 val matchesSearch = searchByTitle.isBlank() || item.title.contains(searchByTitle, ignoreCase = true)
@@ -373,7 +337,6 @@ fun HomeScreen(
             val completedOrFailedTodos = filteredTodos.filter { it.status != TodoStatus.ACTIVE }
 
             if (filteredTodos.isEmpty()) {
-                // Beautiful empty illustration state
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -416,7 +379,6 @@ fun HomeScreen(
                     contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // 1. ACTIVE ITEMS (Shown on top)
                     if (activeTodos.isNotEmpty()) {
                         item {
                             Text(
@@ -445,14 +407,10 @@ fun HomeScreen(
                         }
                     }
 
-                    // Spacer between Active and Completed sections
                     if (activeTodos.isNotEmpty() && completedOrFailedTodos.isNotEmpty()) {
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
 
-                    // 2. COMPLETED & FAILED ITEMS (Shown on bottom)
                     if (completedOrFailedTodos.isNotEmpty()) {
                         item {
                             Text(
@@ -479,7 +437,7 @@ fun HomeScreen(
                                 folderName = folder?.name ?: "Tất cả",
                                 backgroundColor = baseColor,
                                 onClick = { viewModel.toggleTodoCompleted(todo.id) },
-                                onLongClick = { viewModel.toggleTodoCompleted(todo.id) }, // Quick reset to active
+                                onLongClick = { viewModel.toggleTodoCompleted(todo.id) },
                                 onDelete = { viewModel.deleteTodo(todo.id) }
                             )
                         }
@@ -489,7 +447,69 @@ fun HomeScreen(
         }
     }
 
-    // Modal adding Category (Folder) Dialog
+    if (showAddTodoDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showAddTodoDialog = false
+                newTaskText = ""
+                selectedTaskCategoryId = null
+            },
+            title = { Text("Thêm công việc mới", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = newTaskText,
+                        onValueChange = { newTaskText = it },
+                        placeholder = { Text("Bạn cần làm gì / học gì...") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = false,
+                        minLines = 2,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Text("Chọn thư mục", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(state.categories, key = { it.id }) { category ->
+                            val isSelected = selectedTaskCategoryId == category.id
+                            Surface(
+                                modifier = Modifier.combinedClickable(onClick = { selectedTaskCategoryId = category.id }),
+                                shape = RoundedCornerShape(50),
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline)
+                            ) {
+                                Text(
+                                    text = category.name,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newTaskText.isBlank()) {
+                            Toast.makeText(context, "Vui lòng nhập tên công việc!", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        val selectedCatId = selectedTaskCategoryId ?: state.categories.firstOrNull()?.id ?: "1"
+                        viewModel.addTodo(newTaskText, selectedCatId)
+                        newTaskText = ""
+                        selectedTaskCategoryId = null
+                        showAddTodoDialog = false
+                        Toast.makeText(context, "Đã thêm công việc thành công!", Toast.LENGTH_SHORT).show()
+                    }
+                ) { Text("Thêm") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddTodoDialog = false }) { Text("Hủy") }
+            }
+        )
+    }
+
     if (showAddCategoryDialog) {
         AlertDialog(
             onDismissRequest = { showAddCategoryDialog = false },
@@ -510,7 +530,7 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(colorOptions) { (hex, title) ->
+                        items(colorOptions) { (hex, _) ->
                             val isColorSelected = newCategoryColorHex == hex
                             Box(
                                 modifier = Modifier
@@ -522,9 +542,7 @@ fun HomeScreen(
                                         color = if (isColorSelected) MaterialTheme.colorScheme.onPrimaryContainer else Color.LightGray,
                                         shape = RoundedCornerShape(8.dp)
                                     )
-                                    .combinedClickable(
-                                        onClick = { newCategoryColorHex = hex }
-                                    )
+                                    .combinedClickable(onClick = { newCategoryColorHex = hex })
                             )
                         }
                     }
@@ -560,7 +578,56 @@ fun HomeScreen(
         )
     }
 
-    // Modal action on long click an Active item
+    longPressedCategory?.let { category ->
+        val canDelete = category.id != "1" && category.id != "2" && category.id != "3" && category.id != "4"
+        AlertDialog(
+            onDismissRequest = {
+                longPressedCategory = null
+                categoryRenameText = ""
+            },
+            title = { Text("Quản lý thư mục", color = MaterialTheme.colorScheme.onPrimaryContainer, fontWeight = FontWeight.Bold) },
+            text = {
+                OutlinedTextField(
+                    value = categoryRenameText,
+                    onValueChange = { categoryRenameText = it },
+                    label = { Text("Tên thư mục") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.renameCategory(category.id, categoryRenameText)
+                        longPressedCategory = null
+                        categoryRenameText = ""
+                        Toast.makeText(context, "Đã đổi tên thư mục!", Toast.LENGTH_SHORT).show()
+                    }
+                ) { Text("Lưu") }
+            },
+            dismissButton = {
+                Row {
+                    if (canDelete) {
+                        TextButton(
+                            onClick = {
+                                viewModel.deleteCategory(category.id)
+                                longPressedCategory = null
+                                categoryRenameText = ""
+                                Toast.makeText(context, "Đã xóa thư mục!", Toast.LENGTH_SHORT).show()
+                            }
+                        ) { Text("Xóa") }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    TextButton(onClick = {
+                        longPressedCategory = null
+                        categoryRenameText = ""
+                    }) { Text("Hủy") }
+                }
+            }
+        )
+    }
+
     longPressedTodo?.let { todo ->
         AlertDialog(
             onDismissRequest = { longPressedTodo = null },
@@ -602,7 +669,6 @@ fun HomeScreen(
         )
     }
 }
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TodoItemRow(
@@ -739,7 +805,7 @@ fun TodoItemRow(
                     if (isFailed) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "• Không hoàn thành",
+                            text = "â€¢ KhĂ´ng hoĂ n thĂ nh",
                             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                             color = Color(0xFFC62828)
                         )
@@ -754,7 +820,7 @@ fun TodoItemRow(
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Xóa công việc",
+                    contentDescription = "XĂ³a cĂ´ng viá»‡c",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
