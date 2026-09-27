@@ -1,21 +1,65 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Toduzu - Todo List Android App
 
-# Run and deploy your AI Studio app
+Toduzu là ứng dụng quản lý việc cần làm (Todo) chạy trên Android, ưu tiên **offline-first** với khả năng đồng bộ dữ liệu lên cloud khi bạn cần.
 
-This contains everything you need to run your app locally.
+## Tính năng chính
 
-View your app in AI Studio: https://ai.studio/apps/e25a156d-59ed-4b3b-a860-d0b689c0ec69
+- Quản lý công việc theo **thư mục (category)**.
+- Trạng thái công việc: **Đang làm / Hoàn thành** (và đánh dấu lỗi nếu cần).
+- Tìm kiếm công việc theo tiêu đề.
+- Thêm, đổi tên, xóa thư mục.
+- Lưu dữ liệu cục bộ bằng Room để dùng ngay cả khi không có mạng.
+- Đồng bộ cloud qua Firestore:
+  - Đăng ký tài khoản đồng bộ.
+  - Sao lưu dữ liệu local lên cloud.
+  - Khôi phục dữ liệu từ cloud về máy.
+- Hỗ trợ email liên kết để gửi link khôi phục mật khẩu Firebase.
 
-## Run Locally
+## Công nghệ sử dụng
 
-**Prerequisites:**  [Android Studio](https://developer.android.com/studio)
+- Kotlin + Jetpack Compose (Material 3)
+- Android Architecture Components (ViewModel, Navigation)
+- Room (local database)
+- Retrofit + Moshi
+- Firebase Auth + Firestore REST API
+- Gradle Kotlin DSL
 
+## Cấu trúc dự án
 
-1. Open Android Studio
-2. Select **Open** and choose the directory containing this project
-3. Allow Android Studio to fix any incompatibilities as it imports the project.
-4. Create a file named `.env` in the project directory and set `GEMINI_API_KEY` in that file to your Gemini API key (see `.env.example` for an example)
-5. Remove this line from the app's `build.gradle.kts` file: `signingConfig = signingConfigs.getByName("debugConfig")`
-6. Run the app on an emulator or physical device
+- `app/`: Ứng dụng Android chính.
+- `baselineprofile/`: Module hỗ trợ baseline profile cho hiệu năng khởi động.
+
+## Yêu cầu môi trường
+
+- Android Studio (phiên bản mới)
+- Android SDK theo cấu hình dự án (minSdk 24)
+- JDK tương thích với Android Gradle Plugin trong repo
+
+## Chạy dự án local
+
+1. Mở project bằng Android Studio.
+2. Sync Gradle.
+3. Tạo file `.env` từ `.env.example` (nếu bạn dùng cấu hình secrets local).
+4. Đảm bảo cấu hình Firebase phù hợp (ví dụ `app/google-services.json`).
+5. Chạy app trên emulator hoặc thiết bị thật.
+
+## Lệnh Gradle thường dùng
+
+```bash
+# Build debug APK
+./gradlew :app:assembleDebug
+
+# Chạy unit test
+./gradlew :app:testDebugUnitTest
+```
+
+## Luồng đồng bộ cloud (gợi ý)
+
+1. Vào màn hình đồng bộ từ trang chính.
+2. Nhập username + password (và email liên kết nếu muốn khôi phục mật khẩu).
+3. Chọn một trong các thao tác:
+   - **Đăng ký** tài khoản đồng bộ mới
+   - **Sao lưu** dữ liệu hiện tại lên cloud
+   - **Khôi phục** dữ liệu từ cloud về local
+
+---
